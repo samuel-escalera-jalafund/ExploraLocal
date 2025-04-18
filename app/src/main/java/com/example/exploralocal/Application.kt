@@ -6,8 +6,4 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class ExampleApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        AppDatabase.getDatabase(this)
-    }
 }

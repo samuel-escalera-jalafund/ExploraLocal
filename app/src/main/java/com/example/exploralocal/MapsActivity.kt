@@ -2,8 +2,8 @@ package com.example.exploralocal
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import androidx.lifecycle.lifecycleScope
+import androidx.activity.viewModels
+
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -12,15 +12,15 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.exploralocal.databinding.ActivityMapsBinding
-import com.example.exploralocal.db.AppDatabase
-import com.example.exploralocal.db.Place
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import com.example.exploralocal.viewmodels.PlacesViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+    private val viewModel: PlacesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,24 +46,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        val db = AppDatabase.getDatabase(this)
-
-        val testPlace = Place(
-            name = "Café Central",
-            description = "Lugar de prueba",
-            rating = 4.5f,
-            latitude = -34.0,
-            longitude = 151.0,
-            photoPath = ""
-        )
-
-        lifecycleScope.launch {
-            try {
-                db.placeDao().insertPlace(testPlace)
-                val places = db.placeDao().getPlacesByName().first()
-                Log.d("DB_TEST", "Lugares encontrados: ${places.size}")
-            } catch (e: Exception) {
-                Log.e("DB_ERROR", "Error en la BD", e)
+        viewModel.places.observe(this) { places ->
+            places.forEach { place ->
+                val location = LatLng(place.latitude, place.longitude)
+                mMap.addMarker(MarkerOptions()
+                    .position(location)
+                    .title(place.name)
+                    .snippet("Rating: ${place.rating}"))
             }
         }
 
@@ -71,5 +60,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val sydney = LatLng(-34.0, 151.0)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        viewModel.loadPlaces()
     }
 }

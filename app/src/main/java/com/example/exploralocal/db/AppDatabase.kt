@@ -13,14 +13,4 @@ import com.example.exploralocal.db.dao.PlaceDao
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun placeDao(): PlaceDao
-
-    companion object {
-        fun getDatabase(context: Context) : AppDatabase {
-            return Room.databaseBuilder(
-                context,
-                AppDatabase :: class.java,
-                "exploralocal_db"
-            ).build()
-        }
-    }
 }

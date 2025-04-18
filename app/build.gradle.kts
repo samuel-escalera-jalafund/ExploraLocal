@@ -60,13 +60,21 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-    // Dahher
+    // Hilt
     implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    ksp(libs.hilt.compiler)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
-    implementation("androidx.activity:activity-ktx:1.10.1")
+    // Lifecycle
+    implementation(libs.lifecycle.viewmodel)
+    implementation(libs.lifecycle.livedata)
+    implementation(libs.lifecycle.runtime)
+
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Activity KTX
+    implementation(libs.androidx.activity.ktx)
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
