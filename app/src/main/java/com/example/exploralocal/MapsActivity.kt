@@ -2,6 +2,8 @@ package com.example.exploralocal
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.lifecycle.lifecycleScope
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -10,6 +12,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.exploralocal.databinding.ActivityMapsBinding
+import com.example.exploralocal.db.AppDatabase
+import com.example.exploralocal.db.Place
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -39,6 +45,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+
+        val db = AppDatabase.getDatabase(this)
+
+        val testPlace = Place(
+            name = "Café Central",
+            description = "Lugar de prueba",
+            rating = 4.5f,
+            latitude = -34.0,
+            longitude = 151.0,
+            photoPath = ""
+        )
+
+        lifecycleScope.launch {
+            try {
+                db.placeDao().insertPlace(testPlace)
+                val places = db.placeDao().getPlacesByName().first()
+                Log.d("DB_TEST", "Lugares encontrados: ${places.size}")
+            } catch (e: Exception) {
+                Log.e("DB_ERROR", "Error en la BD", e)
+            }
+        }
 
         // Add a marker in Sydney and move the camera
         val sydney = LatLng(-34.0, 151.0)

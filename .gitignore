@@ -18,6 +18,7 @@ local.properties
 # Edit at https://www.toptal.com/developers/gitignore?templates=kotlin,androidstudio
 
 ### Kotlin ###
+.idea
 # Compiled class file
 *.class
 
