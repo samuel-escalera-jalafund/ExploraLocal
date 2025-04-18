@@ -50,10 +50,13 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Maps
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
 
     // Room
     implementation(libs.androidx.room.runtime)
