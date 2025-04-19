@@ -4,15 +4,17 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -31,7 +33,6 @@ import com.example.exploralocal.db.Place
 import com.example.exploralocal.ui.viewmodels.PlacesViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.text.SimpleDateFormat
@@ -89,37 +90,69 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.setOnMapClickListener { latLng ->
             showAddPlaceDialog(latLng)
         }
+
+        mMap.setOnMarkerClickListener { marker ->
+            val place = viewModel.places.value?.find { place ->
+                marker.position == LatLng(place.latitude, place.longitude)
+            }
+
+            place?.let {
+                showPlaceInfoDialog(it)
+            }
+
+            true
+        }
+
         viewModel.places.observe(this) { places ->
             mMap.clear()
             places.forEach { place ->
                 val location = LatLng(place.latitude, place.longitude)
-                val markerOptions = MarkerOptions()
-                    .position(location)
-                    .title(place.name)
-                    .snippet("Rating: ${place.rating}")
-
-                place.photoPath?.let { path ->
-                    try {
-                        val file = File(path)
-                        if (file.exists()) {
-                            val bitmap = BitmapFactory.decodeFile(path)
-                            val smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false)
-                            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                        } else {
-                            throw Exception()
-                        }
-                    } catch (e: Exception) {
-                        Log.e("MAP_MARKER", "Error loading image: ${e.message}")
-                    }
-                }
-
-                mMap.addMarker(markerOptions)
+                mMap.addMarker(
+                    MarkerOptions()
+                        .position(location)
+                        .title(place.name)
+                        .snippet("Rating: ${place.rating}")
+                )
             }
         }
 
         checkLocationPermission()
-
         viewModel.loadPlaces()
+    }
+
+    private fun showPlaceInfoDialog(place: Place) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_place_info, null)
+        val builder = AlertDialog.Builder(this)
+            .setTitle(place.name)
+            .setView(dialogView)
+            .setPositiveButton("Cerrar", null)
+
+        val descriptionText = dialogView.findViewById<TextView>(R.id.tvDescription)
+        val ratingText = dialogView.findViewById<TextView>(R.id.tvRating)
+        val placeImage = dialogView.findViewById<ImageView>(R.id.ivPlaceImage)
+
+        descriptionText.text = place.description
+        ratingText.text = "Rating: ${place.rating}"
+
+        place.photoPath?.let { path ->
+            try {
+                val file = File(path)
+                if (file.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(path)
+                    placeImage.setImageBitmap(bitmap)
+                    placeImage.visibility = View.VISIBLE
+                } else {
+                    placeImage.visibility = View.GONE
+                }
+            } catch (e: Exception) {
+                placeImage.visibility = View.GONE
+                Log.e("PLACE_INFO", "Error loading image", e)
+            }
+        } ?: run {
+            placeImage.visibility = View.GONE
+        }
+
+        builder.show()
     }
 
     override fun onResume() {
@@ -133,8 +166,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val descInput = dialogView.findViewById<EditText>(R.id.etPlaceDescription)
         val ratingInput = dialogView.findViewById<EditText>(R.id.etPlaceRating)
         val takePhotoButton = dialogView.findViewById<Button>(R.id.btnTakePhoto)
-
-        var photoPath: String? = null
 
         takePhotoButton.setOnClickListener {
             photoUri = null
