@@ -1,5 +1,6 @@
 package com.example.exploralocal.viewmodels
 
+import android.util.Log
 import com.example.exploralocal.db.Place
 
 import androidx.lifecycle.ViewModel
@@ -53,10 +54,14 @@ class PlacesViewModel @Inject constructor(
     fun updatePlace(place: Place) {
         viewModelScope.launch {
             try {
-                repository.updatePlace(place)
+                Log.d("PLACES_DEBUG", "Iniciando actualización para: ${place.id}")
+                val rowsUpdated = repository.updatePlace(place)
+                Log.d("PLACES_DEBUG", "Filas actualizadas: $rowsUpdated")
+
                 _successMessage.value = "Lugar actualizado"
                 loadPlaces()
             } catch (e: Exception) {
+                Log.e("PLACES_ERROR", "Error al actualizar: ${e.message}", e)
                 _errorMessage.value = "Error al actualizar: ${e.message}"
             }
         }

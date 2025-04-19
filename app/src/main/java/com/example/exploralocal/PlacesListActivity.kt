@@ -2,6 +2,7 @@ package com.example.exploralocal
 
 import androidx.appcompat.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import androidx.activity.viewModels
@@ -61,24 +62,23 @@ class PlacesListActivity : AppCompatActivity() {
     }
 
     private fun showEditDialog(place: Place) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_add_place, null)
-        dialogView.findViewById<EditText>(R.id.etPlaceName).setText(place.name)
-        dialogView.findViewById<EditText>(R.id.etPlaceDescription).setText(place.description)
-        dialogView.findViewById<EditText>(R.id.etPlaceRating).setText(place.rating.toString())
+        Log.d("EDIT_DIALOG", "Editando lugar con ID: ${place.id}")
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_place, null).apply {
+            findViewById<EditText>(R.id.etPlaceName).setText(place.name)
+            findViewById<EditText>(R.id.etPlaceDescription).setText(place.description)
+            findViewById<EditText>(R.id.etPlaceRating).setText(place.rating.toString())
+        }
 
         AlertDialog.Builder(this)
             .setTitle("Editar lugar")
             .setView(dialogView)
             .setPositiveButton("Guardar") { _, _ ->
-                val name = dialogView.findViewById<EditText>(R.id.etPlaceName).text.toString()
-                val description = dialogView.findViewById<EditText>(R.id.etPlaceDescription).text.toString()
-                val rating = dialogView.findViewById<EditText>(R.id.etPlaceRating).text.toString().toFloatOrNull() ?: 0f
-
                 val updatedPlace = place.copy(
-                    name = name,
-                    description = description,
-                    rating = rating
+                    name = dialogView.findViewById<EditText>(R.id.etPlaceName).text.toString(),
+                    description = dialogView.findViewById<EditText>(R.id.etPlaceDescription).text.toString(),
+                    rating = dialogView.findViewById<EditText>(R.id.etPlaceRating).text.toString().toFloatOrNull() ?: 0f
                 )
+                Log.d("UPDATE_FLOW", "Enviando actualización - ID: ${updatedPlace.id}")
                 viewModel.updatePlace(updatedPlace)
             }
             .setNegativeButton("Cancelar", null)

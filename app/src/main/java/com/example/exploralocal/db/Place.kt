@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "places")
 data class Place(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val description: String,
     val rating: Float,
@@ -12,7 +13,4 @@ data class Place(
     val longitude: Double,
     val photoPath: String?,
     val createdAt: Long = System.currentTimeMillis()
-) {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
-}
+)
