@@ -27,4 +27,13 @@
         android:hint="Rating (0-5)"
         android:inputType="numberDecimal"
         android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/btnTakePhoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tomar Foto"
+        android:layout_marginTop="8dp"
+        android:drawableStart="@android:drawable/ic_menu_camera"
+        android:drawablePadding="8dp"/>
 </LinearLayout>
