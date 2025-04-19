@@ -1,4 +1,4 @@
-package com.example.exploralocal
+package com.example.exploralocal.utils
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

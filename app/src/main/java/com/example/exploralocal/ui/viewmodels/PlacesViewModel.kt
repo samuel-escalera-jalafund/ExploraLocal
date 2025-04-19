@@ -1,4 +1,4 @@
-package com.example.exploralocal.viewmodels
+package com.example.exploralocal.ui.viewmodels
 
 import android.util.Log
 import com.example.exploralocal.db.Place

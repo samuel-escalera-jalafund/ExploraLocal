@@ -1,10 +1,11 @@
-package com.example.exploralocal
+package com.example.exploralocal.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.exploralocal.utils.PlacesAction
 import com.example.exploralocal.databinding.ItemPlaceBinding
 import com.example.exploralocal.db.Place
 

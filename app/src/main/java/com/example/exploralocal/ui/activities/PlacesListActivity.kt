@@ -1,4 +1,4 @@
-package com.example.exploralocal
+package com.example.exploralocal.ui.activities
 
 import androidx.appcompat.app.AlertDialog
 import android.os.Bundle
@@ -9,9 +9,12 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.exploralocal.utils.PlacesAction
+import com.example.exploralocal.R
 import com.example.exploralocal.databinding.ActivityPlacesListBinding
 import com.example.exploralocal.db.Place
-import com.example.exploralocal.viewmodels.PlacesViewModel
+import com.example.exploralocal.ui.adapters.PlacesAdapter
+import com.example.exploralocal.ui.viewmodels.PlacesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

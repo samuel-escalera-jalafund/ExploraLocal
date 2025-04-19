@@ -1,4 +1,4 @@
-package com.example.exploralocal.viewmodels
+package com.example.exploralocal.ui.viewmodels
 
 import android.content.Context
 import androidx.room.Room

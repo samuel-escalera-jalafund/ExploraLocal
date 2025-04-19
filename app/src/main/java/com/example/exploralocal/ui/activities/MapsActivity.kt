@@ -1,4 +1,4 @@
-package com.example.exploralocal
+package com.example.exploralocal.ui.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import com.example.exploralocal.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -19,7 +20,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.exploralocal.databinding.ActivityMapsBinding
 import com.example.exploralocal.db.Place
-import com.example.exploralocal.viewmodels.PlacesViewModel
+import com.example.exploralocal.ui.viewmodels.PlacesViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
@@ -75,6 +76,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             showAddPlaceDialog(latLng)
         }
         viewModel.places.observe(this) { places ->
+            mMap.clear()
             places.forEach { place ->
                 val location = LatLng(place.latitude, place.longitude)
                 mMap.addMarker(MarkerOptions()
@@ -86,6 +88,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         checkLocationPermission()
 
+        viewModel.loadPlaces()
+    }
+
+    override fun onResume() {
+        super.onResume()
         viewModel.loadPlaces()
     }
 

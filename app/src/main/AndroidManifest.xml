@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
-        android:name=".ExampleApplication"
+        android:name=".utils.ExampleApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -33,7 +33,7 @@
             android:value="AIzaSyAHXml4bHuqZrOsJ4vn5rHXDzoTYBYwjM8" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".ui.activities.MapsActivity"
             android:exported="true"
             android:label="@string/title_activity_maps">
             <intent-filter>
@@ -43,12 +43,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PlacesListActivity"
+            android:name=".ui.activities.PlacesListActivity"
             android:label="Lista de Lugares"
-            android:parentActivityName=".MapsActivity">
+            android:parentActivityName=".ui.activities.MapsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MapsActivity" />
+                android:value=".ui.activities.MapsActivity" />
         </activity>
     </application>
 

@@ -1,4 +1,4 @@
-package com.example.exploralocal.viewmodels
+package com.example.exploralocal.ui.viewmodels
 
 import com.example.exploralocal.db.dao.PlaceDao
 import com.example.exploralocal.repositories.PlaceRepository
