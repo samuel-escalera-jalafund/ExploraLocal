@@ -130,9 +130,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val descriptionText = dialogView.findViewById<TextView>(R.id.tvDescription)
         val ratingText = dialogView.findViewById<TextView>(R.id.tvRating)
         val placeImage = dialogView.findViewById<ImageView>(R.id.ivPlaceImage)
+        val shareButton = dialogView.findViewById<Button>(R.id.btnShare)
 
         descriptionText.text = place.description
         ratingText.text = "Rating: ${place.rating}"
+
+        shareButton.setOnClickListener {
+            sharePlace(place)
+        }
 
         place.photoPath?.let { path ->
             try {
@@ -153,6 +158,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         builder.show()
+    }
+
+    private fun sharePlace(place: Place) {
+        val shareText = buildString {
+            append("Nombre: ${place.name}\n")
+            append("Descripción: ${place.description}\n")
+            append("Rating: ${place.rating}\n")
+            append("Ubicación: https://maps.google.com/?q=${place.latitude},${place.longitude}")
+        }
+
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, shareText)
+            type = "text/plain"
+
+            place.photoPath?.let { path ->
+                val photoUri = FileProvider.getUriForFile(
+                    this@MapsActivity,
+                    "${applicationContext.packageName}.fileprovider",
+                    File(path)
+                )
+                putExtra(Intent.EXTRA_STREAM, photoUri)
+                type = "image/*"
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+        }
+
+        try {
+            startActivity(Intent.createChooser(shareIntent, "Compartir lugar"))
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error al compartir: ${e.message}", Toast.LENGTH_SHORT).show()
+            Log.e("SHARE", "Error sharing place", e)
+        }
     }
 
     override fun onResume() {
