@@ -18,4 +18,12 @@
         android:layout_margin="16dp"
         android:src="@android:drawable/ic_menu_sort_by_size"
         app:tint="@android:color/white" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:text="Ver lugares cercanos" />
 </FrameLayout>

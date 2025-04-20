@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import android.location.Location
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -95,31 +96,49 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val place = viewModel.places.value?.find { place ->
                 marker.position == LatLng(place.latitude, place.longitude)
             }
-
-            place?.let {
-                showPlaceInfoDialog(it)
-            }
-
+            place?.let { showPlaceInfoDialog(it) }
             true
         }
 
-        viewModel.places.observe(this) { places ->
-            mMap.clear()
-            places.forEach { place ->
-                val location = LatLng(place.latitude, place.longitude)
-                mMap.addMarker(
-                    MarkerOptions()
-                        .position(location)
-                        .title(place.name)
-                        .snippet("Rating: ${place.rating}")
-                )
-            }
+        binding.button.setOnClickListener {
+            checkLocationPermissionAndShowPlaces()
         }
 
         checkLocationPermission()
-        viewModel.loadPlaces()
     }
 
+    @SuppressLint("MissingPermission")
+    private fun showNearbyPlaces(currentLocation: LatLng) {
+        viewModel.places.value?.let { places ->
+            mMap.clear()
+
+            val nearbyPlaces = places.filter { place ->
+                val distance = FloatArray(1)
+                Location.distanceBetween(
+                    currentLocation.latitude, currentLocation.longitude,
+                    place.latitude, place.longitude,
+                    distance
+                )
+                distance[0] <= 5000
+            }
+
+            if (nearbyPlaces.isEmpty()) {
+                Toast.makeText(this, "No hay lugares cercanos", Toast.LENGTH_SHORT).show()
+            } else {
+                nearbyPlaces.forEach { place ->
+                    val location = LatLng(place.latitude, place.longitude)
+                    mMap.addMarker(
+                        MarkerOptions()
+                            .position(location)
+                            .title(place.name)
+                            .snippet("Rating: ${place.rating}")
+                    )
+                }
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
+            }
+        }
+    }
     private fun showPlaceInfoDialog(place: Place) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_place_info, null)
         val builder = AlertDialog.Builder(this)
@@ -274,11 +293,56 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         }
     }
+
+    private fun checkLocationPermissionAndShowPlaces() {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                getCurrentLocationAndShowPlaces()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                showLocationPermissionExplanation()
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getCurrentLocationAndShowPlaces() {
+        try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    showNearbyPlaces(currentLatLng)
+                } else {
+                    Toast.makeText(this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error al obtener ubicación", Toast.LENGTH_SHORT).show()
+            Log.e("LOCATION", "Error getting location", e)
+        }
+    }
+
+    private fun showLocationPermissionExplanation() {
+        AlertDialog.Builder(this)
+            .setTitle("Permiso de ubicación necesario")
+            .setMessage("Necesitamos acceso a tu ubicación para mostrarte los lugares cercanos")
+            .setPositiveButton("Entendido") { _, _ ->
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
         try {
             mMap.isMyLocationEnabled = true
-
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     val currentLatLng = LatLng(it.latitude, it.longitude)
